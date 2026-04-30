@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  /* CUSTOM COLORS */
+  --color-brand: #ffffff;
+  --color-brand-darker: #f8f7f4;
+  --color-accent: #8da399;
+  --color-accent-dark: #4e635a;
+  --color-text: #1b1c1a;
+  --color-text-light: #ffffff;
+
+  /* CUSTOM FONTS */
+  --font-sans: "Nunito", sans-serif;
+}
