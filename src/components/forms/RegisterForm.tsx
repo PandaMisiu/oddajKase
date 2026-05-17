@@ -1,4 +1,7 @@
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useState } from "react";
+import { friendlyError } from "../../lib/authErrors";
+import { auth } from "../../lib/firebase";
 import MainBtn from "../buttons/MainBtn";
 import InputField from "../inputs/InputField";
 
@@ -52,10 +55,13 @@ export default function RegisterForm() {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
+  const [loading, setLoading] = useState(false);
+  const [firebaseError, setFirebaseError] = useState("");
+
   const touch = (field: string) =>
     setTouched((prev) => ({ ...prev, [field]: true }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const allTouched = {
       name: true,
@@ -66,12 +72,29 @@ export default function RegisterForm() {
     setTouched(allTouched);
     const errs = validate(name, email, password, confirm);
     setErrors(errs);
-    if (Object.keys(errs).length === 0) {
-      // proceed
+    if (Object.keys(errs).length > 0) return;
+
+    setFirebaseError("");
+    setLoading(true);
+    try {
+      const { user } = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+      await updateProfile(user, { displayName: name });
+    } catch (err: any) {
+      setFirebaseError(friendlyError(err.code));
+      setName("");
+      setEmail("");
+      setPassword("");
+      setConfirm("");
+      setTouched({});
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Live-validate touched fields
   const liveErrors = touched ? validate(name, email, password, confirm) : {};
 
   const err = (field: keyof FieldErrors) =>
@@ -148,6 +171,10 @@ export default function RegisterForm() {
         onBlur={() => touch("confirm")}
         error={err("confirm")}
       />
+
+      {firebaseError && (
+        <p className="text-sm font-semibold text-red-500">{firebaseError}</p>
+      )}
 
       <MainBtn
         name="Create account"

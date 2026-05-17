@@ -1,17 +1,32 @@
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { friendlyError } from "../../lib/authErrors";
+import { auth } from "../../lib/firebase";
 import MainBtn from "../buttons/MainBtn";
 import InputField from "../inputs/InputField";
 
-type Props = {
-  onForgot: () => void;
-};
+type Props = { onForgot: () => void };
 
 export default function SignInForm({ onForgot }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      navigate("/dashboard", { replace: true });
+    } catch (err: any) {
+      setError(friendlyError(err.code));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -31,6 +46,8 @@ export default function SignInForm({ onForgot }: Props) {
         onChange={(e) => setPassword(e.target.value)}
       />
 
+      {error && <p className="text-sm font-semibold text-red-500">{error}</p>}
+
       <button
         type="button"
         onClick={onForgot}
@@ -40,7 +57,7 @@ export default function SignInForm({ onForgot }: Props) {
       </button>
 
       <MainBtn
-        name="Sign in"
+        name={loading ? "Signing in…" : "Sign in"}
         className="w-full mt-1 py-4 text-base rounded-2xl"
       />
     </form>
