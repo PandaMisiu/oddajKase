@@ -1,6 +1,6 @@
-import MainBtn from "../../buttons/MainBtn";
-import SideBarLink from "../../buttons/SideBarLink";
-import SideBarTitle from "../../text/SideBarTitle";
+import MainBtn from "../buttons/MainBtn";
+import SideBarLink from "../buttons/SideBarLink";
+import SideBarTitle from "../text/SideBarTitle";
 
 export default function SideBar() {
   return (
