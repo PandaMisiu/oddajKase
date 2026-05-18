@@ -1,13 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export type AuthMode = "signin" | "register" | "forgot";
 
 type AuthLayoutProps = {
+  initialMode?: AuthMode;
   children: (mode: AuthMode, setMode: (m: AuthMode) => void) => React.ReactNode;
 };
 
-export default function AuthLayout({ children }: AuthLayoutProps) {
-  const [mode, setMode] = useState<AuthMode>("signin");
+export default function AuthLayout({ initialMode = "signin", children }: AuthLayoutProps) {
+  const [mode, setMode] = useState<AuthMode>(initialMode);
+
+  useEffect(() => {
+    setMode(initialMode);
+  }, [initialMode]);
 
   return (
     <div className="min-h-dvh flex items-center justify-center bg-[#f0ede8] px-4 py-12">

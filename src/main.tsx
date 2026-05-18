@@ -17,6 +17,10 @@ const router = createBrowserRouter([
     element: <SignInPage />,
   },
   {
+    path: "/signup",
+    element: <SignInPage initialMode="register" />,
+  },
+  {
     path: "/groups",
     element: <GroupPage />,
   },

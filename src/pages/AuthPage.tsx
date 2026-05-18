@@ -3,6 +3,10 @@ import RegisterForm from "../components/forms/RegisterForm";
 import SignInForm from "../components/forms/SignInForm";
 import AuthLayout from "../components/layout/auth/AuthLayout";
 
+type AuthPageProps = {
+  initialMode?: "signin" | "register" | "forgot";
+};
+
 const headings = {
   signin: { title: "Welcome back", sub: "Sign in to continue to OddajKase" },
   register: {
@@ -12,9 +16,9 @@ const headings = {
   forgot: { title: "Forgot password?", sub: "No worries, we'll sort it out" },
 };
 
-export default function AuthPage() {
+export default function AuthPage({ initialMode = "signin" }: AuthPageProps) {
   return (
-    <AuthLayout>
+    <AuthLayout initialMode={initialMode}>
       {(mode, setMode) => {
         const { title, sub } = headings[mode];
         return (
