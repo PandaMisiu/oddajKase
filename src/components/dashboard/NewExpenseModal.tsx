@@ -27,7 +27,13 @@ type Props = {
   }) => void;
 };
 
-export default function NewExpenseModal({ open, groups, contacts, onClose, onSave }: Props) {
+export default function NewExpenseModal({
+  open,
+  groups,
+  contacts,
+  onClose,
+  onSave,
+}: Props) {
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
@@ -38,13 +44,18 @@ export default function NewExpenseModal({ open, groups, contacts, onClose, onSav
     const group = groups.find((item) => item.id === selectedGroup);
     return group
       ? group.memberIds
-          .map((memberId) => contacts.find((contact) => contact.id === memberId))
+          .map((memberId) =>
+            contacts.find((contact) => contact.id === memberId),
+          )
           .filter((contact): contact is Contact => Boolean(contact))
       : [];
   }, [groups, contacts, selectedGroup]);
 
   useEffect(() => {
-    if (groupMembers.length && !groupMembers.some((member) => member.id === selectedPerson)) {
+    if (
+      groupMembers.length &&
+      !groupMembers.some((member) => member.id === selectedPerson)
+    ) {
       setSelectedPerson(groupMembers[0].id);
     }
   }, [groupMembers, selectedPerson]);
@@ -57,7 +68,13 @@ export default function NewExpenseModal({ open, groups, contacts, onClose, onSav
 
   const handleSave = () => {
     if (!name || !amount || !selectedGroup || !selectedPerson) return;
-    onSave({ name, amount, category, groupId: selectedGroup, personId: selectedPerson });
+    onSave({
+      name,
+      amount,
+      category,
+      groupId: selectedGroup,
+      personId: selectedPerson,
+    });
     setName("");
     setAmount("");
     setCategory("");
@@ -83,7 +100,7 @@ export default function NewExpenseModal({ open, groups, contacts, onClose, onSav
           <button
             type="button"
             onClick={handleSave}
-            className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white transition hover:bg-primary/90"
+            className="rounded-full bg-[#4E635A] px-5 py-2 text-sm font-semibold text-white hover:bg-[#3f5149]"
           >
             Save expense
           </button>

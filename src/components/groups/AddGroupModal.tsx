@@ -14,7 +14,12 @@ type Props = {
   onCreate: (groupName: string, memberIds: string[]) => void;
 };
 
-export default function AddGroupModal({ open, contacts, onClose, onCreate }: Props) {
+export default function AddGroupModal({
+  open,
+  contacts,
+  onClose,
+  onCreate,
+}: Props) {
   const [name, setName] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
@@ -49,7 +54,7 @@ export default function AddGroupModal({ open, contacts, onClose, onCreate }: Pro
           <button
             type="button"
             onClick={handleCreate}
-            className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white hover:bg-primary/90"
+            className="rounded-full bg-[#4E635A] px-5 py-2 text-sm font-semibold text-white hover:bg-[#3f5149]"
           >
             Create group
           </button>
@@ -67,7 +72,9 @@ export default function AddGroupModal({ open, contacts, onClose, onCreate }: Pro
           />
         </label>
         <div>
-          <div className="mb-3 text-sm font-semibold text-slate-800">Add people from contacts</div>
+          <div className="mb-3 text-sm font-semibold text-slate-800">
+            Add people from contacts
+          </div>
           <div className="grid gap-2 max-h-64 overflow-y-auto rounded-3xl border border-slate-200 bg-slate-50 p-3">
             {contacts.map((contact) => (
               <label
@@ -81,7 +88,9 @@ export default function AddGroupModal({ open, contacts, onClose, onCreate }: Pro
                   className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary"
                 />
                 <div>
-                  <div className="font-medium text-slate-900">{contact.name}</div>
+                  <div className="font-medium text-slate-900">
+                    {contact.name}
+                  </div>
                   <div className="text-sm text-slate-500">{contact.email}</div>
                 </div>
               </label>
