@@ -1,30 +1,52 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { Provider } from "react-redux";
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router";
+import { ProtectedRoute } from "./components/common/ProtectedRoute.tsx";
+import { PublicRoute } from "./components/common/PublicRoute.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
 import "./index.css";
 import SignInPage from "./pages/AuthPage.tsx";
 import DashboardPage from "./pages/DashboardPage.tsx";
 import GroupPage from "./pages/GroupPage.tsx";
 import { store } from "./store/store.ts";
-import { Provider } from "react-redux";
 
 const router = createBrowserRouter([
   {
+    path: "/",
+    element: <Navigate to="/signin" replace />,
+  },
+  {
     path: "/dashboard",
-    element: <DashboardPage />,
+    element: (
+      <ProtectedRoute>
+        <DashboardPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/signin",
-    element: <SignInPage />,
+    element: (
+      <PublicRoute>
+        <SignInPage />
+      </PublicRoute>
+    ),
   },
   {
     path: "/signup",
-    element: <SignInPage initialMode="register" />,
+    element: (
+      <PublicRoute>
+        <SignInPage initialMode="register" />
+      </PublicRoute>
+    ),
   },
   {
     path: "/groups",
-    element: <GroupPage />,
+    element: (
+      <ProtectedRoute>
+        <GroupPage />
+      </ProtectedRoute>
+    ),
   },
 ]);
 
