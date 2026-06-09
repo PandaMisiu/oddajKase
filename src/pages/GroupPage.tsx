@@ -13,6 +13,7 @@ import {
   addGroup,
   deleteGroup,
   joinGroup,
+  markSettlementPaid,
   updateGroupMembers,
 } from "../store/dataSlice";
 import { useAppDispatch, useAppSelector } from "../store/store";
@@ -124,7 +125,7 @@ export default function GroupPage() {
                   <button
                     type="button"
                     onClick={() => setIsAddOpen(true)}
-                    className="text-text-light transition-all hover:bg-accent-dark/90 items-center justify-center rounded-full bg-accent-dark px-5 py-3 text-sm font-semibold  hover:bg-primary/90 cursor-pointer"
+                    className="text-text-light transition-all hover:bg-accent-dark/90 items-center justify-center rounded-full bg-accent-dark px-5 py-3 text-sm font-semibold hover:bg-primary/90 cursor-pointer"
                   >
                     Add group
                   </button>
@@ -137,7 +138,6 @@ export default function GroupPage() {
                 <GroupCard
                   key={group.id}
                   name={group.name}
-                  amount={getGroupBalance(group)}
                   members={memberNames(group)}
                   inviteCode={group.inviteCode}
                   onViewSummary={() => setSummaryGroupId(group.id)}
@@ -183,6 +183,16 @@ export default function GroupPage() {
           expenses={summaryGroup.expenses ?? []}
           payments={summaryGroup.payments ?? []}
           onClose={() => setSummaryGroupId(null)}
+          onMarkSettlementPaid={(fromId, toId, amount) =>
+            dispatch(
+              markSettlementPaid({
+                groupId: summaryGroup.id,
+                fromId,
+                toId,
+                amount,
+              }),
+            )
+          }
         />
       )}
     </div>

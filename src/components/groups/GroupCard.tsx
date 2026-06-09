@@ -2,7 +2,6 @@ import { useState } from "react";
 
 type Props = {
   name: string;
-  amount: string;
   members: string[];
   inviteCode?: string;
   onViewSummary: () => void;
@@ -12,7 +11,6 @@ type Props = {
 
 export default function GroupCard({
   name,
-  amount,
   members,
   inviteCode,
   onViewSummary,
@@ -34,7 +32,7 @@ export default function GroupCard({
       role="button"
       tabIndex={0}
       onClick={onViewSummary}
-      className="group rounded-[32px] border border-white/10 bg-white/5 p-6 shadow-sm transition hover:border-accent/60 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent/30"
+      className="cursor-pointer group rounded-[32px] border border-white/10 bg-white/5 p-6 shadow-sm transition hover:border-accent/60 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent/30"
     >
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -42,10 +40,6 @@ export default function GroupCard({
             Group
           </div>
           <h3 className="mt-2 text-xl font-semibold text-text">{name}</h3>
-        </div>
-        <div className="text-right">
-          <div className="text-sm text-slate-500">Balance</div>
-          <div className="mt-1 text-2xl font-bold text-text">{amount}</div>
         </div>
       </div>
 
@@ -67,7 +61,7 @@ export default function GroupCard({
         <button
           type="button"
           onClick={handleCopyCode}
-          className="mt-5 flex w-full items-center justify-between rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 transition hover:bg-slate-100"
+          className="cursor-pointer mt-5 flex w-full items-center justify-between rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 transition hover:bg-slate-100"
         >
           <div className="flex items-center gap-3">
             <span className="text-xs uppercase tracking-widest text-slate-400">
@@ -90,7 +84,7 @@ export default function GroupCard({
             e.stopPropagation();
             onEdit();
           }}
-          className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+          className="cursor-pointer inline-flex items-center justify-center rounded-full border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
         >
           Edit members
         </button>
@@ -100,7 +94,7 @@ export default function GroupCard({
             e.stopPropagation();
             onDelete();
           }}
-          className="inline-flex items-center justify-center rounded-full border border-rose-300 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100"
+          className="cursor-pointer inline-flex items-center justify-center rounded-full border border-rose-300 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100"
         >
           Delete group
         </button>

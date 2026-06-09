@@ -69,7 +69,7 @@ export default function AddGroupModal({ open, onClose, onCreate }: Props) {
               type="button"
               onClick={handleCreate}
               disabled={!name.trim()}
-              className="text-text-light transition-all hover:bg-accent-dark/90 items-center justify-center rounded-full bg-accent-dark px-5 py-3 text-sm font-semibold  hover:bg-primary/90 cursor-pointer"
+              className="text-text-light transition-all hover:bg-accent-dark/90 items-center justify-center rounded-full bg-accent-dark px-5 py-3 text-sm font-semibold  cursor-pointer"
             >
               Create group
             </button>

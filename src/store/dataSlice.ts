@@ -2,6 +2,55 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
 import type { Contact, Group, SummaryItem, Transaction } from "../lib/types";
 
+// ─── helpers ──────────────────────────────────────────────────────────────────
+
+/**
+ * Recomputes memberBalances and balance string for a group from scratch,
+ * based on its expenses and payments arrays.
+ *
+ *   positive balance → member is owed money
+ *   negative balance → member owes money
+ */
+function recomputeGroup(group: Group): void {
+  const balances: Record<string, number> = {};
+  const ensure = (id: string) => {
+    if (!(id in balances)) balances[id] = 0;
+  };
+
+  for (const exp of group.expenses ?? []) {
+    const n = exp.splitBetween.length;
+    if (n === 0) continue;
+    const share = exp.amount / n;
+    ensure(exp.paidBy);
+    balances[exp.paidBy] += exp.amount;
+    for (const memberId of exp.splitBetween) {
+      ensure(memberId);
+      balances[memberId] -= share;
+    }
+  }
+
+  for (const pay of group.payments ?? []) {
+    ensure(pay.from);
+    ensure(pay.to);
+    balances[pay.from] += pay.amount;
+    balances[pay.to] -= pay.amount;
+  }
+
+  group.memberBalances = {};
+  for (const id of group.memberIds) {
+    group.memberBalances[id] = parseFloat((balances[id] ?? 0).toFixed(2));
+  }
+
+  // balance string = sum of what creditors are owed (positive side)
+  const totalOwed = Object.values(group.memberBalances)
+    .filter((v) => v > 0)
+    .reduce((s, v) => s + v, 0);
+
+  group.balance = `€${totalOwed.toFixed(2)}`;
+}
+
+// ─── seed data ────────────────────────────────────────────────────────────────
+
 const balanceDetails: SummaryItem[] = [
   { label: "Anna Kowalska", amount: -35.2, meta: "You owe" },
   { label: "Jan Nowak", amount: 15.0, meta: "Owes you" },
@@ -35,13 +84,14 @@ const initialTransactions: Transaction[] = [
   { id: "3", title: "Donation received", amount: "+€150.00", date: "May 15" },
 ];
 
-const groups: Group[] = [
+// Groups — balances are derived via recomputeGroup, not hardcoded
+const rawGroups: Group[] = [
   {
     id: "g1",
     name: "Weekend trip",
     memberIds: ["c1", "c2", "c3"],
-    balance: "€260.50",
-    memberBalances: { c1: -40.5, c2: 20.0, c3: 20.5 },
+    balance: "",
+    memberBalances: {},
     inviteCode: "ABC123",
     expenses: [
       {
@@ -85,8 +135,8 @@ const groups: Group[] = [
     id: "g2",
     name: "Office lunch",
     memberIds: ["c2", "c4"],
-    balance: "€-70.20",
-    memberBalances: { c2: -35.1, c4: -35.1 },
+    balance: "",
+    memberBalances: {},
     inviteCode: "XYZ789",
     expenses: [
       {
@@ -112,8 +162,8 @@ const groups: Group[] = [
     id: "g3",
     name: "Charity gift",
     memberIds: ["c1", "c3", "c4"],
-    balance: "€120.00",
-    memberBalances: { c1: 40.0, c3: 40.0, c4: 40.0 },
+    balance: "",
+    memberBalances: {},
     inviteCode: "GRP001",
     expenses: [
       {
@@ -148,6 +198,10 @@ const groups: Group[] = [
   },
 ];
 
+rawGroups.forEach(recomputeGroup);
+
+// ─── slice ────────────────────────────────────────────────────────────────────
+
 interface DataState {
   balanceDetails: SummaryItem[];
   expenseDetails: SummaryItem[];
@@ -162,7 +216,7 @@ const initialState: DataState = {
   expenseDetails,
   incomeDetails,
   contacts,
-  groups,
+  groups: rawGroups,
   transactions: initialTransactions,
 };
 
@@ -187,6 +241,7 @@ export const dataSlice = createSlice({
       };
       state.groups.unshift(newGroup);
     },
+
     joinGroup: (state, action: PayloadAction<{ inviteCode: string }>) => {
       const { inviteCode } = action.payload;
       const group = state.groups.find(
@@ -195,9 +250,10 @@ export const dataSlice = createSlice({
       if (!group) return;
       if (!group.memberIds.includes("me")) {
         group.memberIds.push("me");
-        if (group.memberBalances) group.memberBalances["me"] = 0;
+        recomputeGroup(group);
       }
     },
+
     updateGroupMembers: (
       state,
       action: PayloadAction<{ groupId: string; memberIds: string[] }>,
@@ -206,17 +262,13 @@ export const dataSlice = createSlice({
       const group = state.groups.find((g) => g.id === groupId);
       if (!group) return;
       group.memberIds = memberIds;
-      group.memberBalances = memberIds.reduce(
-        (acc, id) => {
-          acc[id] = group.memberBalances?.[id] ?? 0;
-          return acc;
-        },
-        {} as Record<string, number>,
-      );
+      recomputeGroup(group);
     },
+
     deleteGroup: (state, action: PayloadAction<string>) => {
       state.groups = state.groups.filter((g) => g.id !== action.payload);
     },
+
     addExpense: (
       state,
       action: PayloadAction<{
@@ -227,9 +279,8 @@ export const dataSlice = createSlice({
         personId: string;
       }>,
     ) => {
-      const { name, amount, personId } = action.payload;
+      const { name, amount, personId, groupId } = action.payload;
       const contact = state.contacts.find((c) => c.id === personId);
-
       const numericAmount = Math.abs(parseFloat(amount) || 0);
 
       state.expenseDetails.unshift({
@@ -247,10 +298,58 @@ export const dataSlice = createSlice({
           day: "numeric",
         }),
       });
+
+      const group = state.groups.find((g) => g.id === groupId);
+      if (group) {
+        if (!group.expenses) group.expenses = [];
+        group.expenses.unshift({
+          id: `e${Date.now()}`,
+          title: name,
+          amount: numericAmount,
+          paidBy: personId,
+          splitBetween: group.memberIds,
+          date: new Date().toISOString().split("T")[0],
+        });
+        recomputeGroup(group);
+      }
+    },
+
+    /**
+     * Records a payment from `fromId` to `toId` for `amount`,
+     * then recomputes all balances. Use this when "Mark as paid" is clicked
+     * on a settlement suggestion in the Settle up tab.
+     */
+    markSettlementPaid: (
+      state,
+      action: PayloadAction<{
+        groupId: string;
+        fromId: string;
+        toId: string;
+        amount: number;
+      }>,
+    ) => {
+      const { groupId, fromId, toId, amount } = action.payload;
+      const group = state.groups.find((g) => g.id === groupId);
+      if (!group) return;
+      if (!group.payments) group.payments = [];
+      group.payments.push({
+        id: `p${Date.now()}`,
+        from: fromId,
+        to: toId,
+        amount: parseFloat(amount.toFixed(2)),
+        date: new Date().toISOString().split("T")[0],
+      });
+      recomputeGroup(group);
     },
   },
 });
 
-export const { addGroup, updateGroupMembers, deleteGroup, addExpense, joinGroup } =
-  dataSlice.actions;
+export const {
+  addGroup,
+  updateGroupMembers,
+  deleteGroup,
+  addExpense,
+  joinGroup,
+  markSettlementPaid,
+} = dataSlice.actions;
 export default dataSlice.reducer;
