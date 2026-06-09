@@ -1,4 +1,4 @@
-import type { ReactNode, MouseEvent } from "react";
+import type { MouseEvent, ReactNode } from "react";
 
 type ModalProps = {
   open: boolean;
@@ -47,9 +47,7 @@ export default function Modal({
             ×
           </button>
         </div>
-        <div className="max-h-[calc(100vh-13rem)] overflow-y-auto px-6 py-5">
-          {children}
-        </div>
+        <div className="h-150 overflow-y-auto px-6 py-5">{children}</div>
         {footer && (
           <div className="sticky bottom-0 z-10 border-t border-slate-200 bg-white px-6 py-4">
             {footer}

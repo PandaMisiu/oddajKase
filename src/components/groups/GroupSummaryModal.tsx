@@ -128,7 +128,7 @@ export default function GroupSummaryModal({
               key={t.id}
               type="button"
               onClick={() => setTab(t.id)}
-              className={`flex-1 rounded-xl py-2 text-xs font-semibold transition-all ${
+              className={`cursor-pointer flex-1 rounded-xl py-2 text-xs font-semibold transition-all ${
                 tab === t.id
                   ? "bg-white text-slate-800 shadow-sm"
                   : "text-slate-500 hover:text-slate-700"

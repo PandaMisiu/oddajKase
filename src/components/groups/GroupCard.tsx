@@ -34,7 +34,7 @@ export default function GroupCard({
       role="button"
       tabIndex={0}
       onClick={onViewSummary}
-      className="group rounded-[32px] border border-white/10 bg-white/5 p-6 shadow-sm transition hover:border-accent/60 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent/30"
+      className="group rounded-[32px] border border-white/10 bg-white/5 p-6 shadow-sm transition hover:border-accent/60 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-accent/30 cursor-pointer"
     >
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -67,7 +67,7 @@ export default function GroupCard({
         <button
           type="button"
           onClick={handleCopyCode}
-          className="mt-5 flex w-full items-center justify-between rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 transition hover:bg-slate-100"
+          className="mt-5 flex w-full items-center justify-between rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 transition hover:bg-slate-100 cursor-pointer"
         >
           <div className="flex items-center gap-3">
             <span className="text-xs uppercase tracking-widest text-slate-400">
