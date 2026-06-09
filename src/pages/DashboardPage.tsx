@@ -1,5 +1,4 @@
-import { useMemo, useState } from "react";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Modal from "../components/common/Modal";
 import DashboardHeader from "../components/dashboard/DashboardHeader";
@@ -8,18 +7,10 @@ import SummaryCards from "../components/dashboard/SummaryCards";
 import SideBar from "../components/layout/common/SideBar";
 import TopBar from "../components/layout/common/TopBar";
 import { initGoogleAnalytics, trackPageView } from "../lib/googleAnalytics";
-import type { SummaryCard } from "../lib/types";
-import { addExpense } from "../store/dataSlice";
 import { useAppDispatch, useAppSelector } from "../store/store";
+import type { SummaryCard } from "../lib/types";
 import { formatMoney } from "../util/utils";
-
-type Transaction = {
-  id: string;
-  title: string;
-  amount: string;
-  date: string;
-  meta: string;
-};
+import { addExpense } from "../store/dataSlice";
 
 export default function DashboardPage() {
   const location = useLocation();
@@ -29,10 +20,10 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const groups = useAppSelector((state) => state.data.groups);
   const contacts = useAppSelector((state) => state.data.contacts);
-  const expenses = useAppSelector((state) => state.data.expenses);
   const balanceDetails = useAppSelector((state) => state.data.balanceDetails);
   const incomeDetails = useAppSelector((state) => state.data.incomeDetails);
   const expenseDetails = useAppSelector((state) => state.data.expenseDetails);
+  const transactions = useAppSelector((state) => state.data.transactions);
 
   useEffect(() => {
     initGoogleAnalytics();
@@ -77,32 +68,10 @@ export default function DashboardPage() {
     [balanceDetails, incomeDetails, expenseDetails],
   );
 
-  const transactions: Transaction[] = useMemo(
-    () =>
-      expenses.map((expense) => {
-        const groupName =
-          groups.find((group) => group.id === expense.groupId)?.name ?? "Group";
-        const contactName =
-          contacts.find((contact) => contact.id === expense.personId)?.name ??
-          "Unknown";
-
-        return {
-          id: expense.id,
-          title: expense.name,
-          amount: `-${formatMoney(expense.amount)}`,
-          date: expense.date,
-          meta: `${groupName} · ${contactName}`,
-        };
-      }),
-    [contacts, expenses, groups],
-  );
-
   const filteredTransactions = useMemo(() => {
     if (!searchQuery.trim()) return transactions;
-
-    const query = searchQuery.toLowerCase();
     return transactions.filter((item) =>
-      `${item.title} ${item.meta}`.toLowerCase().includes(query),
+      item.title.toLowerCase().includes(searchQuery.toLowerCase()),
     );
   }, [transactions, searchQuery]);
 
@@ -117,24 +86,15 @@ export default function DashboardPage() {
     groupId: string;
     personId: string;
   }) => {
-    const amount = Number.parseFloat(data.amount.replace(/[^0-9.-]/g, ""));
-    if (Number.isNaN(amount)) return;
-
-    dispatch(
-      addExpense({
-        name: data.name,
-        amount,
-        category: data.category,
-        groupId: data.groupId,
-        personId: data.personId,
-      }),
-    );
+    dispatch(addExpense(data));
+    setIsNewExpenseOpen(false);
   };
 
   return (
     <div className="flex h-dvh min-h-screen bg-brand">
       <SideBar onAction={() => setIsNewExpenseOpen(true)} />
 
+      {/* Right side: TopBar + scrollable content */}
       <div className="flex flex-1 flex-col overflow-hidden">
         <TopBar
           searchPlaceholder="Search expenses..."
@@ -167,8 +127,10 @@ export default function DashboardPage() {
                             <div className="font-semibold text-text">
                               {item.title}
                             </div>
-                            <div className="text-sm text-text/60">{item.meta}</div>
-                            <div className="text-sm text-text/60">{item.date}</div>
+
+                            <div className="text-sm text-text/60">
+                              {item.date}
+                            </div>
                           </div>
 
                           <div
@@ -219,8 +181,10 @@ export default function DashboardPage() {
                               <div className="font-semibold text-text">
                                 {item.title}
                               </div>
-                              <div className="text-sm text-text/60">{item.meta}</div>
-                              <div className="text-sm text-text/60">{item.date}</div>
+
+                              <div className="text-sm text-text/60">
+                                {item.date}
+                              </div>
                             </div>
 
                             <div
