@@ -26,6 +26,16 @@ export type SummaryItem = {
   meta?: string;
 };
 
+export type Expense = {
+  id: string;
+  name: string;
+  amount: number;
+  category: string;
+  groupId: string;
+  personId: string;
+  date: string;
+};
+
 export type SummaryCard = {
   id: string;
   title: string;

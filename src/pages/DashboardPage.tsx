@@ -8,17 +8,28 @@ import SummaryCards from "../components/dashboard/SummaryCards";
 import SideBar from "../components/layout/common/SideBar";
 import TopBar from "../components/layout/common/TopBar";
 import { initGoogleAnalytics, trackPageView } from "../lib/googleAnalytics";
-import { useAppSelector } from "../store/store";
 import type { SummaryCard } from "../lib/types";
+import { addExpense } from "../store/dataSlice";
+import { useAppDispatch, useAppSelector } from "../store/store";
 import { formatMoney } from "../util/utils";
+
+type Transaction = {
+  id: string;
+  title: string;
+  amount: string;
+  date: string;
+  meta: string;
+};
 
 export default function DashboardPage() {
   const location = useLocation();
+  const dispatch = useAppDispatch();
   const [isNewExpenseOpen, setIsNewExpenseOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState<SummaryCard | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const groups = useAppSelector((state) => state.data.groups);
   const contacts = useAppSelector((state) => state.data.contacts);
+  const expenses = useAppSelector((state) => state.data.expenses);
   const balanceDetails = useAppSelector((state) => state.data.balanceDetails);
   const incomeDetails = useAppSelector((state) => state.data.incomeDetails);
   const expenseDetails = useAppSelector((state) => state.data.expenseDetails);
@@ -66,25 +77,32 @@ export default function DashboardPage() {
     [balanceDetails, incomeDetails, expenseDetails],
   );
 
-  const transactions = useMemo(
-    () => [
-      { id: "1", title: "Coffee", amount: "-€3.50", date: "May 17" },
-      { id: "2", title: "Groceries", amount: "-€42.30", date: "May 16" },
-      {
-        id: "3",
-        title: "Donation received",
-        amount: "+€150.00",
-        date: "May 15",
-      },
-    ],
-    [],
+  const transactions: Transaction[] = useMemo(
+    () =>
+      expenses.map((expense) => {
+        const groupName =
+          groups.find((group) => group.id === expense.groupId)?.name ?? "Group";
+        const contactName =
+          contacts.find((contact) => contact.id === expense.personId)?.name ??
+          "Unknown";
+
+        return {
+          id: expense.id,
+          title: expense.name,
+          amount: `-${formatMoney(expense.amount)}`,
+          date: expense.date,
+          meta: `${groupName} · ${contactName}`,
+        };
+      }),
+    [contacts, expenses, groups],
   );
 
   const filteredTransactions = useMemo(() => {
     if (!searchQuery.trim()) return transactions;
 
+    const query = searchQuery.toLowerCase();
     return transactions.filter((item) =>
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()),
+      `${item.title} ${item.meta}`.toLowerCase().includes(query),
     );
   }, [transactions, searchQuery]);
 
@@ -99,20 +117,24 @@ export default function DashboardPage() {
     groupId: string;
     personId: string;
   }) => {
-    const group = groups.find((item) => item.id === data.groupId);
-    const contact = contacts.find((item) => item.id === data.personId);
-    console.log("Saved expense:", {
-      ...data,
-      groupName: group?.name,
-      personName: contact?.name,
-    });
+    const amount = Number.parseFloat(data.amount.replace(/[^0-9.-]/g, ""));
+    if (Number.isNaN(amount)) return;
+
+    dispatch(
+      addExpense({
+        name: data.name,
+        amount,
+        category: data.category,
+        groupId: data.groupId,
+        personId: data.personId,
+      }),
+    );
   };
 
   return (
     <div className="flex h-dvh min-h-screen bg-brand">
       <SideBar onAction={() => setIsNewExpenseOpen(true)} />
 
-      {/* Right side: TopBar + scrollable content */}
       <div className="flex flex-1 flex-col overflow-hidden">
         <TopBar
           searchPlaceholder="Search expenses..."
@@ -145,10 +167,8 @@ export default function DashboardPage() {
                             <div className="font-semibold text-text">
                               {item.title}
                             </div>
-
-                            <div className="text-sm text-text/60">
-                              {item.date}
-                            </div>
+                            <div className="text-sm text-text/60">{item.meta}</div>
+                            <div className="text-sm text-text/60">{item.date}</div>
                           </div>
 
                           <div
@@ -199,10 +219,8 @@ export default function DashboardPage() {
                               <div className="font-semibold text-text">
                                 {item.title}
                               </div>
-
-                              <div className="text-sm text-text/60">
-                                {item.date}
-                              </div>
+                              <div className="text-sm text-text/60">{item.meta}</div>
+                              <div className="text-sm text-text/60">{item.date}</div>
                             </div>
 
                             <div
