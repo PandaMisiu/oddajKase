@@ -1,7 +1,10 @@
+import { useState } from "react";
+
 type Props = {
   name: string;
   amount: string;
   members: string[];
+  inviteCode?: string;
   onViewSummary: () => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -11,10 +14,21 @@ export default function GroupCard({
   name,
   amount,
   members,
+  inviteCode,
   onViewSummary,
   onEdit,
   onDelete,
 }: Props) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyCode = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!inviteCode) return;
+    navigator.clipboard.writeText(inviteCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <div
       role="button"
@@ -34,6 +48,7 @@ export default function GroupCard({
           <div className="mt-1 text-2xl font-bold text-text">{amount}</div>
         </div>
       </div>
+
       <div className="mt-5 flex flex-wrap gap-2">
         {members.map((member) => (
           <span
@@ -43,12 +58,36 @@ export default function GroupCard({
             {member}
           </span>
         ))}
+        {members.length === 0 && (
+          <span className="text-xs text-slate-400 italic">No members yet</span>
+        )}
       </div>
-      <div className="mt-6 flex flex-wrap gap-3">
+
+      {inviteCode && (
         <button
           type="button"
-          onClick={(event) => {
-            event.stopPropagation();
+          onClick={handleCopyCode}
+          className="mt-5 flex w-full items-center justify-between rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 transition hover:bg-slate-100"
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-xs uppercase tracking-widest text-slate-400">
+              Invite code
+            </span>
+            <span className="font-mono text-base font-bold tracking-widest text-primary">
+              {inviteCode}
+            </span>
+          </div>
+          <span className="text-xs font-medium text-slate-500">
+            {copied ? "Copied!" : "Copy"}
+          </span>
+        </button>
+      )}
+
+      <div className="mt-4 flex flex-wrap gap-3">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
             onEdit();
           }}
           className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
@@ -57,8 +96,8 @@ export default function GroupCard({
         </button>
         <button
           type="button"
-          onClick={(event) => {
-            event.stopPropagation();
+          onClick={(e) => {
+            e.stopPropagation();
             onDelete();
           }}
           className="inline-flex items-center justify-center rounded-full border border-rose-300 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100"
@@ -66,7 +105,8 @@ export default function GroupCard({
           Delete group
         </button>
       </div>
-      <div className="mt-4 rounded-3xl bg-slate-50 p-3 text-sm text-slate-500 transition group-hover:bg-slate-100 cursor-pointer">
+
+      <div className="mt-4 rounded-3xl bg-slate-50 p-3 text-sm text-slate-500 transition group-hover:bg-slate-100">
         Click card to view full summary.
       </div>
     </div>
