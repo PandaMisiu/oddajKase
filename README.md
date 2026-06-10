@@ -225,3 +225,70 @@ Go to **Reports → Engagement → Pages and screens** to see which pages are vi
 Go to **Reports → Acquisition → Traffic acquisition** to see how users are finding the app (direct, Google search, referral, etc.).
 
 ![GA Acquisition panel](readme_images/image-27.png)
+
+
+## Contentsquare (Hotjar) Integration
+
+The application is integrated with Contentsquare (Hotjar) to collect user behavior data and support UX analysis.
+
+### Integration Details
+
+The Contentsquare script was integrated by adding the following snippet to the `<head>` section of `index.html`:
+
+```html
+<script src="https://t.contentsquare.net/uxa/e0ff600412673.js"></script>
+```
+Additionally, a dedicated initialization function (`initContentsquare.ts`) was implemented to dynamically load the script when the application starts. The function verifies that the code is executed in a browser environment and prevents duplicate script injection by checking whether the script has already been added to the document.
+
+```ts 
+export function initContentsquare(): void {
+    if (typeof window === 'undefined') return;
+    const src = 'https://t.contentsquare.net/uxa/e0ff600412673.js';
+    if (document.querySelector(`script[src="${src}"]`)) return;
+    const s = document.createElement('script');
+    s.src = src;
+    s.async = true;
+    document.head.appendChild(s);
+}
+```
+This approach ensures that Contentsquare is loaded only once and does not negatively impact application performance.
+
+### Features
+
+- Session recording
+- User interaction tracking
+- Navigation path analysis
+- Heatmap generation
+- User behavior monitoring across the application
+
+### Purpose
+
+The integration helps identify usability issues, understand how users interact with the application, and make data-driven decisions regarding future improvements and feature development.
+
+### Collected Data & Insights
+
+After successfully deploying the integration, user activity and performance metrics were analyzed during the test period (June 3 – June 10, 2026). The following dashboards illustrate the key findings:
+
+#### 1. Application Performance & Overview (Core Web Vitals)
+The integration provides an at-a-glance overview of the core metrics. A crucial element of this monitoring is tracking the **Largest Contentful Paint (LCP)**, which measures perceived loading speed and marks the point in the page load timeline when the page's main content has likely loaded.
+
+![Contentsquare Overview Dashboard](readme_images/image-34.png)
+
+![Largest Contentful Paint Chart](readme_images/image-35.png)
+
+#### 2. Traffic Distribution & User Journeys
+By defining custom **Page Groups**, the application maps exact traffic numbers and behavior across different routing sections (`signin`, `dashboard`, `groups`).
+
+![Page Groups Mapping](readme_images/image-31.png)
+
+The behavior flow analysis (User Journeys) confirms the entry paths and subsequent navigation habits. In the analyzed sample, the entry point was heavily centered around the authorization view.
+
+![User Journey Visualization](readme_images/image-33.png)
+
+### Key Analytical Findings
+
+Based on the collected data from the initial traffic spike, several behavioral patterns were identified to drive future optimization:
+- **End-to-End User Journey Verification:** The telemetry confirms the successful execution of a complete, critical user path within the application. The flow initiated at the login screen (`/signin`), progressed through group creation/management (`/groups`), and concluded at the main dashboard (`/dashboard`) where users added expenses and verified their final balance.
+- **High Friction on Sign-In:** The `/signin` route recorded the highest volume of views (7 views) and sessions (7 sessions), but exhibited a high **Bounce Rate (85.7%)** and an extremely low average **Time spent (0.15s)**. This indicates that users either encountered immediate friction or that automated test interactions quickly hit this boundary before bouncing.
+- **High Engagement in Dashboard:** In contrast, users who successfully passed the authorization layer spent an average of **17.9 seconds** on the `/dashboard` route with a **0.00% Bounce Rate**, proving high engagement once inside the application core.
+- **Desktop Domination:** All recorded traffic within this diagnostic window was initiated exclusively via **Desktop devices**, which provides a clear focus area for the immediate layout stability tuning.
