@@ -2,7 +2,6 @@ import type { MouseEventHandler } from "react";
 
 export default function DashboardHeader({
   title = "Dashboard",
-  onNewExpense,
 }: {
   title?: string;
   onNewExpense: MouseEventHandler<HTMLButtonElement>;

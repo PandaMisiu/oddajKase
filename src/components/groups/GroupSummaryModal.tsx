@@ -89,7 +89,6 @@ const TABS: { id: Tab; label: string }[] = [
 export default function GroupSummaryModal({
   open,
   groupName,
-  balance,
   contacts,
   memberBalances,
   expenses,
@@ -207,7 +206,6 @@ export default function GroupSummaryModal({
               )}
               {expenses.map((exp) => {
                 const paidByName = resolveName(exp.paidBy, contacts);
-                const perPerson = exp.amount / exp.splitBetween.length;
                 return (
                   <div
                     key={exp.id}

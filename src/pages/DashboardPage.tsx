@@ -21,8 +21,6 @@ type Transaction = {
   paidBy: string;
 };
 
-type OwedEntry = { amount: number; groupId: string; expenseName: string };
-
 type SettlementItem = SummaryItem & {
   groupId?: string;
   fromId?: string;

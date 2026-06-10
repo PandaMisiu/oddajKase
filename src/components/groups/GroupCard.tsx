@@ -14,7 +14,6 @@ export default function GroupCard({
   members,
   inviteCode,
   onViewSummary,
-  onEdit,
   onDelete,
 }: Props) {
   const [copied, setCopied] = useState(false);
