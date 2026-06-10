@@ -213,3 +213,15 @@ Go to **Reports → Realtime** in Google Analytics. Open the deployed app in ano
 
 ![GA Realtime panel](readme_images/image-23.png)
 ![alt text](readme_images/image-30.png)
+
+### What users do — Engagement
+
+Go to **Reports → Engagement → Pages and screens** to see which pages are visited most and how long users stay.
+
+![GA Engagement panel](readme_images/image-26.png)
+
+### Where users come from — Acquisition
+
+Go to **Reports → Acquisition → Traffic acquisition** to see how users are finding the app (direct, Google search, referral, etc.).
+
+![GA Acquisition panel](readme_images/image-27.png)
