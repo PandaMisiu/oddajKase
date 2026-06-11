@@ -5,6 +5,8 @@
 🌐 **Live app:** [oddaj-kase.vercel.app](https://oddaj-kase.vercel.app/)  
 🎨 **Figma design:** [Expense Dashboard with Modal](https://www.figma.com/design/bR6ebiYDg9SBekyvRQFkID/Expense-Dashboard-with-Modal)
 
+**Differences report:** [differences](https://docs.google.com/document/d/1VwrIWJKlFGBIJZhdRPAVcmwTYmb8Zd_Yt2GhG4sXtHE/edit?tab=t.0)
+
 ---
 
 ## Tech Stack
